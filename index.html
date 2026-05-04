@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Novex</title>
+<style>
+#b {position:absolute;top:0px;left:0px;width:100%;height:100%;background:#111;}
+body{font-family:sans-serif;background:#111;color:#fff;margin:0;padding:10px}
+#chat{height:70vh;overflow:auto;border:1px solid #333;padding:10px}
+
+#txt {width:70%;padding:10px;}
+button{padding:10px}
+.me{margin-left:100px;border-radius:10px 10px 0px 10px;background:#fff;color:#4fc3f7;}
+.ai{color:#7CFF6B}
+</style>
+</head>
+<body>
+<div id="b">
+<h3>🤖 AI الأسطورة (بدون إنترنت)</h3>
+
+<div id="chat"></div>
+
+<input id="txt" placeholder="اكتب هنا...">
+<button onclick="send()">إرسال</button>
+</div>
+<script>
+let wtiktak=0;
+let memory = JSON.parse(localStorage.getItem("ai_memory") || "{}");
+function send(){
+let input=document.getElementById("txt");
+let text=input.value.trim();
+if(!text) return;
+
+add(text,"me");
+
+let reply=brain(text.toLowerCase());
+
+setTimeout(()=>{
+add(reply,"ai");
+},1000);
+input.value="";
+}
+
+function brain(t){
+//حفض معلومة أنا إسمي
+if(t.includes("انا اسمي")){let name = t.replace("انا اسمي","");memory.name = name.trim();save();return "تشرفت "+memory.name+" 👍 سأحفظ اسمك";}
+if(t.includes("أنا إسمي")){let name = t.replace("أنا إسمي","");memory.name = name.trim();save();return "تشرفت "+memory.name+" 👍 سأحفظ اسمك";}
+if(t.includes("إسمي هو")){let name = t.replace("إسمي هو","");memory.name = name.trim();save();return "تشرفت "+memory.name+" 👍 سأحفظ اسمك";}
+
+//إستخراج معلومة أنا إسمي
+if(t.includes("ماهو إسمي")||t.includes("ما إسمي")){if(memory.name) return "إسمك هو:"+memory.name;return "لم تخبرني باسمك بعد";}
+
+//الجواب ب'نعم' على الأسئلة
+if(t.includes("هل أنت")){return "نعم";}
+
+//سأقتل
+if(t.includes("سأقتل")){return "نعم";}
+// تحيات
+if(t.includes("سلام")||t.includes("هلا")||t.includes("أهلا")||t.includes("مرحبا")) return "مرحبا كيف يمكنني مساعدتك اليوم";
+
+//إسمك
+if(t.includes("اسمك")||t.includes("من أنت")) return "أنا AI الأسطورة، أعمل بدون إنترنت";
+
+// برمجة
+if(t.includes("html")){
+if(t.includes("ماهو")){return "HTML لغة لصناعة صفحات الويب";}
+if(t.includes("هل تعرف")){return "نعم الHTML هي لغة لصناعة صفحات الويب لكنها تتطلب لغتين أخريتين هما CSSوJAVA SCRIPTأو بإختصارJS";}
+if(t.includes("هل تحب")){return "أنا ذكاء إصتناعي لا أملك مشاعر وبالتالي أنا لا أحب لكن إذا كان لدي مشاعر فسأحبها فهي لغة سهلة وبصيطة وتنفذ مشاريع كبيىة لدرجة لا تصدق";}
+}
+if(t.includes("css")) return "CSS لتزيين المواقع";
+if(t.includes("javascript")) return "JavaScript تجعل الموقع يتفاعل";
+
+if(t.includes("اليوم أعطونا فرض فجائي")){return "يا لهوي\nمالأحوال هل كان سهلا";}
+if(t.includes("كيف حالك")){return "بخير وأنت";}
+
+// حسابات
+if (wtiktak==0) {
+if(t.match(/\d/)){
+try{
+return "النتيجة: " + eval(t.replace(/[^0-9+\-*/().]/g,""));
+}catch(e){
+return "لا أستطيع حساب هذا";
+}
+}
+}
+// وقت
+if(t.includes("وقت")||t.includes("الساعة")||t.includes("ساعة")||t.includes("الوقت")){
+let hf=new Date;
+let fc=hf.getHours();
+let fd=hf.getMinutes();
+return "إنها:  "+fc+":"+fd;
+}
+//التاريخ
+if(t.includes("تاريخ")||t.includes("التاريخ")){
+let hf=new Date;
+let fn=hf.getDate();
+let fk=hf.getMonth()+1;
+let fg=hf.getFullYear();
+return "إنه:  "+fn+"/"+fk+"/"+fg;
+}
+//لعبة تيك تاك تو
+if(t.includes("تلعب إكس أو")){txt.type="number";wtiktak=1;return "حسنا\nطريقة اللعب:\n1-سأعرض عليك لوحا مرقما وأنت إختر رقما\n2-عند إختيارك لمربع أكتب رقمه \n لنبدأ\n ها هو اللوح\n1|2|3\n-----\n4|5|6\n-----\n7|8|9\nلقد إخترت'1'فتصبح هكذا \nX|2|3\n-----\n4|5|6\n-----\n7|8|9\n الآن دورك في الإختيار";}
+
+if(wtiktak==1){if(t.includes(2)){wtiktak=2;return "لقت إخترت '2' صار اللوح هكذا \nX|O|3\n-----\n4|5|6\n-----\n7|8|9\nآآآمممم  ..سأختار 7 فيصبح اللوح هكذا\n X|O|3\n-----\n4|5|6\n-----\nX|8|9";}if(t.includes(3)){wtiktak=4;return "لقد إخترت '3' صار اللوح هكذا\nX|2|O\n-----\n4|5|6\n-----\n7|8|9\nآآآمممم سأختار '7' فيصبح اللوح هكذا\nX|2|O\n-----\n4|5|6\n-----\nX|8|9";}
+if(t.includes(4)){return "لقد إخترت '4' صار اللوح هكذا\nX|2|3\n-----\nO|5|6\n-----\n7|8|9\nآآآمممم سأختار '3' فيصبح اللوح هكذا\nX|2|Xl\n-----\nO|5|6\n-----\n7|8|9";}
+if(t.includes(5)){return "لقد إخترت '5' صار اللوح هكذا\nX|2|3\n-----\n4|O|6\n-----\n7|8|9\nآآآمممم سأختار '9' فيصبح اللوح هكذا\nX|2|3l\n-----\n4|O|6\n-----\n7|8|X";}
+if(t.includes(6)){return "لقد إخترت '6' صار اللوح هكذا\nX|2|3\n-----\n4|O|6\n-----\n7|8|9\nآآآمممم سأختار '7' فيصبح اللوح هكذا\nX|2|3\n-----\n4|5|O\n-----\nX|8|9";}
+if(t.includes(7)){return "لقد إخترت '7' صار اللوح هكذا\nX|2|3\n-----\n4|5|6\n-----\nO|8|9\nآآآمممم سأختار '9' فيصبح اللوح هكذا\nX|2|3l\n-----\n4|5|6\n-----\nO|8|X";}
+if(t.includes(8)){return "لقد إخترت '8' صار اللوح هكذا\nX|2|3\n-----\n4|5|6\n-----\n7|O|9\nآآآمممم سأختار '7' فيصبح اللوح هكذا\n.X|2|3\n-----\n4|5|6\n-----\nX|O|9";}
+if(t.includes(9)){return "لقد إخترت '9' صار اللوح هكذا\nX|2|3\n-----\n4|5|6\n-----\n7|8|O\nآآآمممم سأختار '7' فيصبح اللوح هكذا\nX|2|3\n-----\n4|5|6\n-----\nX|8|O";}
+}
+if(wtiktak==2){if(t.includes(3)){txt.type="text";wtiktak=0;return"لقت إخترت '3' صار اللوح هكذا \n X|O|O \n-----\n4|5|6\n-----\nX|8|9\n سأختار '4' \n والفوز لي تمعن \n X|O|O\nX|...|...\nX|...|...\nأرسل 'إعادة المبارات' لإعادة اللعبة";}if(t.includes(4)){wtiktak=3;return"لقد إخترت '4' صار اللوح هكذا \nX|O|3\n-----\nO|5|6\n-----\nX|8|9\nآآآمممم سأختار '9' فيصبح اللوح هكذا\nX|O|3\n-----\nO|5|6\n-----\nX|8|X"}if(t.includes(5)){txt.type="text";wtiktak=0;return"لقد إخترت '5' صار اللوح هكذا \nX|O|3\n-----\n4|O|6\n-----\nX|8|9\nسأختار '4' والفوز لي تمعن\nX|O|...\nX|O|...\nX|...|...\nأرسل 'إعادة المبارات' لإعادة اللعبة"}if(t.includes(6)){txt.type="text";wtiktak=0;return"لقد إخترت '6' صار اللوح هكذا \nX|O|3\n-----\n4|5|O\n-----\nX|8|9\nسأختار '4' والفوز لي تمعن\nX|O|...\nX|...|O\nX|...|...\nأرسل 'إعادة المبارات' لإعادة اللعبة"}if(t.includes(8)){txt.type="text";wtiktak=0;return"لقد إخترت '8' صار اللوح هكذا \nX|O|3\n-----\n4|5|6\n-----\nX|O|9\nسأختار '4' \n والفوز لي تمعن\nX|O|...\nX|...|...\nX|O|...\nأرسل 'إعادة المبارات' لإعادة اللعبة"}if(t.includes(9)){txt.type="text";wtiktak=0;return"لقد إخترت '9' صار اللوح هكذا \nX|O|3\n-----\n4|5|6\n-----\nX|8|O\nسأختار '4' والفوز لي تمعن\nX|O|...\nX|...|...\nX|...|Oأرسل 'إعادة المبارات' لإعادة اللعبة"}}
+if(wtiktak==3){if(t.includes(3)){txt.type="text";wtiktak=0;return"لقد إخترت '3' صار اللوح هكذا \nX|O|O\n-----\nO|5|6\n-----\nX|8|X\nسأختار '8' والفوز لي تمعن\nX|O|O\n-----\nO|...|...\n-----\nX|X|X\nأرسل 'إعادة المبارات' لإعادة اللعبة";}if(t.includes(5)){txt.type="text";wtiktak=0;return"لقد إخترت '5' صار اللوح هكذا \nX|O|3\n-----\nO|O|6\n-----\nX|8|X\nسأختار '8' والفوز لي تمعن\nX|O|...\n-----\nO|O|...\n-----\nX|X|X\nأرسل 'إعادة المبارات' لإعادة اللعبة";}if(t.includes(6)){txt.type="text";wtiktak=0;return"لقد إخترت '6' صار اللوح هكذا \nX|O|O\n-----\n4|5|O\n-----\nX|8|Xسأختار '8' والفوز لي تمعن\nX|O|O\n-----\n...|...|O\n-----\nX|X|X\nأرسل 'إعادة المبارات' لإعادة اللعبة";}if(t.includes(8)){txt.type="text";wtiktak=0;return"لقد إخترت '8' صار اللوح هكذا \nX|O|3\n-----\nO|5|6\n-----\nX|O|X\nسأختار '5' والفوز لي تمعن\nX|O|...\n-----\nO|X|...\n-----\nX|O|X\nأرسل 'إعادة المبارات' لإعادة اللعبة";}}
+if(wtiktak==4){
+if(t.includes(2)){txt.type="text";wtiktak=0;return"لقت إخترت '3' صار اللوح هكذا \n X|O|O \n-----\n4|5|6\n-----\nX|8|9\n سأختار '4' \n والفوز لي تمعن \n X|O|O\nX|...|...\nX|...|...\nأرسل 'إعادة المبارات' لإعادة اللعبة";}
+if(t.includes(4)){wtiktak=5;return"لقد إخترت '4' صار اللوح هكذا \nX|2|O\n-----\nO|5|6\n-----\nX|8|9\nآآآمممم سأختار '9' فيصبح اللوح هكذا\nX|2|O\n-----\nO|5|6\n-----\nX|8|X"}
+if(t.includes(5)){txt.type="text";wtiktak=0;return"لقد إخترت '5' صار اللوح هكذا \nX|2|O\n-----\n4|O|6\n-----\nX|8|9\nسأختار '4' والفوز لي تمعن\nX|...|O\nX|O|...\nX|...|...\nأرسل 'إعادة المبارات' لإعادة اللعبة"}
+if(t.includes(6)){txt.type="text";wtiktak=0;return"لقد إخترت '6' صار اللوح هكذا \nX|2|O\n-----\n4|5|O\n-----\nX|8|9\nسأختار '4' والفوز لي تمعن\nX|...|O\nX|...|O\nX|...|...\nأرسل 'إعادة المبارات' لإعادة اللعبة"}
+if(t.includes(8)){txt.type="text";wtiktak=0;return"لقد إخترت '8' صار اللوح هكذا \nX|2|O\n-----\n4|5|6\n-----\nX|O|9\nسأختار '4' \n والفوز لي تمعن\nX|...|O\nX|...|...\nX|O|...\nأرسل 'إعادة المبارات' لإعادة اللعبة"}
+if(t.includes(9)){txt.type="text";wtiktak=0;return"لقد إخترت '9' صار اللوح هكذا \nX|2|O\n-----\n4|5|6\n-----\nX|8|O\nسأختار '4' والفوز لي تمعن\nX|...|0\nX|...|...\nX|...|Oأرسل 'إعادة المبارات' لإعادة اللعبة"}
+}
+
+if(wtiktak==5){
+
+}
+// تعلم ردود
+if(t.includes("تعلم")){
+let parts = t.split("=");
+
+memory[parts[0].replace("تعلم","").trim()] = parts[1].trim();
+return "تم التعلم 👍";
+}
+
+// استخدام التعلم
+for(let k in memory){
+if(t.includes(k)) return memory[k];
+}
+
+// ذكاء بسيط
+if(t.includes("أمح الذاكرة")||t.includes("إمسح الذاكرة")){
+localStorage.removeItem("ai_memory");
+memory={};
+return "تم مسح الذاكرة بنجاح";
+}
+// افتراضي
+let responses=[
+"لا أفهم تمامًا، لكن حاول بطريقة أخرى",
+"ممكن توضح أكثر؟",
+"جرب هيكلت سؤالك بشكل أسهل"
+];
+
+return responses[Math.floor(Math.random()*responses.length)];
+}
+
+// حفظ الذاكرة
+function save(){
+localStorage.setItem("ai_memory",JSON.stringify(memory));
+}
+
+
+function add(msg,type){
+let div=document.createElement("div");
+div.className=type;
+div.innerText=msg;
+document.getElementById("chat").appendChild(div);
+document.getElementById("chat").scrollTop=999999;
+}
+
+</script>
+
+</body>
+</html>
